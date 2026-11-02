@@ -91,13 +91,3 @@ Playback can be paused, replayed or adjusted in speed; camera follow and overlay
 **Flood reports:** [Citizen Digital, April 2024](https://citizen.digital/article/nairobi-the-green-city-under-the-sun-marooned-by-floods-n340750), [The Star, April 2025](https://www.the-star.co.ke/news/2025-04-23-heavy-rains-six-killed-after-flash-floods-in-nairobi), [Citizen Digital, October 2025](https://www.citizen.digital/article/nairobians-wake-up-to-flooded-city-roads-after-friday-rains-n370865), [Citizen Digital, March 2026](https://citizen.digital/article/nairobi-streets-turn-to-filthy-rivers-as-rain-pounds-city-vehicles-nearly-submerged-n378622/), [The Star's Kenya Red Cross road list](https://www.the-star.co.ke/news/realtime/2026-03-07-nairobi-floods-red-cross-lists-affected-roads), [Eastleigh Voice](https://eastleighvoice.co.ke/national%20disaster%20management%20unit/307797/five-dead-in-nairobi-floods-as-rains-batter-city-emergency-response-activated), and [Copernicus EMS](https://global-flood.emergency.copernicus.eu/news/239-floods-and-landslides-in-kenya-ethiopia-and-tanzania-march-2026). The app includes original paraphrased summaries and links, not article text or photographs.
 
 **Story:** [UNICEF's Mathare account](https://www.unicef.org/kenya/stories/children-leading-climate-action-mathare-after-devastating-floods), [SPACE4ALL / University of Twente flooding diagnostic](https://ris.utwente.nl/ws/portalfiles/portal/483486672/FloodExposure_Report_Nairobi_Space4All_1_.pdf), and [Nairobi Rivers Commission trunk-sewer programme](https://www.nrc.go.ke/construction-twin-trunk-sewer-lines). Highlighted waterways do not constitute a sewer inventory or measured pollution plume.
-
-## Phones and tablets
-
-Layouts stack the map and explorer on screens up to 900 px wide, with a side panel for short landscape screens. Touch controls have larger targets, story text is enlarged in compact layouts, and dialogs and popups scroll within the screen. Full map view provides additional room. WebGL support and network access are required on mobile devices too.
-
-## Hosting
-
-This is a static HTML, CSS and JavaScript site suitable for GitHub Pages. Publish this folder as the repository root. No database, backend, build step or API key is required. Internet access and WebGL are needed for MapLibre GL JS 4.7.1 and the basemap tiles, fonts and sprites.
-
-Local preparation scripts, raw downloads and Python caches are excluded by `.gitignore`. The prepared datasets, runtime files, README, attribution and `.nojekyll` are included.
