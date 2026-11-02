@@ -438,7 +438,9 @@ window.floodTimeline=(()=>{
   }
   return true;
  }
- function select(value,reframe=false){index=Math.max(0,Math.min(events.length-1,Number(value)));progress=0;lastTourStop='';render();if(reframe)camera();else followTour(true);}
+ function resumeFollow(){followRiver=true;syncFollow();}
+ function syncFollow(){$('flood-follow').setAttribute('aria-pressed',String(followRiver));$('flood-follow').textContent=followRiver?'Pause camera follow':'Follow river';}
+ function select(value,reframe=false){if(reframe)resumeFollow();index=Math.max(0,Math.min(events.length-1,Number(value)));progress=0;lastTourStop='';render();if(reframe)camera();else if(!followTour(true)&&!hasGeometry())camera();}
  function pause(){const wasPlaying=playing;playing=false;cancelAnimationFrame(raf);if(active)map?.stop();$('flood-play').textContent='Play';$('flood-play').setAttribute('aria-pressed','false');$('flood-overlay').classList.remove('is-playing','controls-idle');paint();if(wasPlaying&&active&&analysis&&followRiver)fitStop(currentStop(),true,true);}
  function tick(now){
   if(!playing||!active)return;
@@ -449,7 +451,7 @@ window.floodTimeline=(()=>{
   if(now-lastInteraction>3000&&!$('flood-overlay').querySelector(':focus-visible')&&!$('flood-options').open)$('flood-overlay').classList.add('controls-idle');
   raf=requestAnimationFrame(tick);
  }
- function play(){if(playing){pause();return;}if(index===events.length-1&&progress>=1)select(0);playing=true;last=performance.now();lastInteraction=last;$('flood-overlay').classList.remove('controls-idle');$('flood-play').textContent='Pause';$('flood-play').setAttribute('aria-pressed','true');$('flood-overlay').classList.add('is-playing');followTour(true);raf=requestAnimationFrame(tick);}
+ function play(){if(playing){pause();return;}resumeFollow();if(index===events.length-1&&progress>=1)select(0);playing=true;last=performance.now();lastInteraction=last;$('flood-overlay').classList.remove('controls-idle');$('flood-play').textContent='Pause';$('flood-play').setAttribute('aria-pressed','true');$('flood-overlay').classList.add('is-playing');followTour(true);raf=requestAnimationFrame(tick);}
  function setActive(value){
   active=value;$('flood-panel').hidden=!active;$('flood-overlay').hidden=!active;
   $('analysis-toggle').hidden=!active;
@@ -478,8 +480,8 @@ window.floodTimeline=(()=>{
   $('flood-event-select').onchange=e=>{const chosen=Number(e.target.value);pause();select(chosen,true);};
   $('analysis-toggle').onclick=()=>{if(analysis)setMode('explore');else setAnalysis(true);};
   const scrubGlobal=value=>{
-   pause();const position=Math.max(0,Math.min(events.length*100,Number(value)));const next=Math.min(events.length-1,Math.floor(position/100));
-   if(next!==index){index=next;progress=(position-index*100)/100;render();}else{progress=(position-index*100)/100;paint();}followTour(true);
+   pause();resumeFollow();const position=Math.max(0,Math.min(events.length*100,Number(value)));const next=Math.min(events.length-1,Math.floor(position/100));
+   if(next!==index){index=next;progress=(position-index*100)/100;render();}else{progress=(position-index*100)/100;paint();}if(!followTour(true))camera();
   };
   $('flood-timeline').oninput=event=>scrubGlobal(event.target.value);
   $('flood-timeline').onkeydown=event=>{if(event.key===' '){event.preventDefault();play();}};
@@ -491,8 +493,8 @@ window.floodTimeline=(()=>{
   $('analysis-plot').onpointerdown=event=>{event.preventDefault();$('analysis-plot').setPointerCapture(event.pointerId);scrubChart(event);};
   $('analysis-plot').onpointermove=event=>{if(event.buttons===1)scrubChart(event);};
   $('flood-play').onclick=play;
-  $('flood-prev').onclick=()=>{pause();select(index-1);};
-  $('flood-next').onclick=()=>{pause();select(index+1);};
+  $('flood-prev').onclick=()=>{pause();select(index-1,true);};
+  $('flood-next').onclick=()=>{pause();select(index+1,true);};
   $('flood-replay').onclick=()=>{pause();progress=0;play();};
   $('flood-compare').onclick=()=>{
    overlayVisible=!overlayVisible;$('flood-compare').textContent=overlayVisible?'Hide overlay':'Show overlay';
@@ -502,7 +504,7 @@ window.floodTimeline=(()=>{
 
   document.querySelectorAll('[data-hazard-period]').forEach(button=>button.onclick=()=>{hazardPeriod=Number(button.dataset.hazardPeriod);$('flood-map-kind').textContent=`Modelled river flooding - ${hazardPeriod}-year scenario`;paint();});
   $('flood-speed').onchange=event=>{speed=Number(event.target.value);};
-  const syncFollow=()=>{$('flood-follow').setAttribute('aria-pressed',String(followRiver));$('flood-follow').textContent=followRiver?'Pause camera follow':'Follow river';};
+  // Manual dragging pauses travel until Play or a timeline selection resumes it.
   $('flood-buildings').onclick=()=>{showBuildings=!showBuildings;$('flood-buildings').setAttribute('aria-pressed',String(showBuildings));paint();};
   $('flood-follow').onclick=()=>{followRiver=!followRiver;syncFollow();if(followRiver)followTour(true);};
   map?.on('dragstart',event=>{if(event.originalEvent){followRiver=false;syncFollow();}});
@@ -514,7 +516,7 @@ window.floodTimeline=(()=>{
   loadError=results.some(r=>r.status==='rejected');dataReady=true;
   observedArea=(data['flood-observed']?.features||[]).reduce((sum,feature)=>sum+polygonArea(feature.geometry),0);
   install();map?.on('style.load',install);
-  pinKey='';if(active)render();
+  pinKey='';if(active){render();camera();}
  }
  init();
  return {setActive,get active(){return active;},install,pause,refresh:paint};
