@@ -1,0 +1,7 @@
+# Local data preparation, not needed by the website
+/prepare_*.py
+/data/*-source*.json
+
+# Python caches
+__pycache__/
+*.py[cod]
