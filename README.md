@@ -75,7 +75,7 @@ The prepared dataset retains the lowest sampled return period with modelled dept
 
 ### Animation
 
-Camera views frame the active reference or observation group. Selected road sections receive moving light, report pins have a screen-sized water ripple, and all available satellite polygons for the selected date receive animated wave texture, with a brighter outline around the current camera stop. These effects are illustrative: they do not simulate flood spread, timing, water depth, velocity or inundated road width. Decorative river pulses move west to east and do not measure actual flow direction.
+Camera views frame the active reference or observation group. All mapped river, stream and drainage paths receive moving cyan-white flow marks with a dark contrast edge. All reported road references within the active event receive the same moving pattern; report pins have a screen-sized water ripple, and all available satellite polygons for the selected date receive animated wave texture, with a brighter outline around the current camera stop. These effects are illustrative: they do not simulate flood spread, timing, water depth, velocity or inundated road width. Foam ripples animate inside the fixed satellite and selected model footprints. Decorative flow marks move west to east and do not measure actual flow direction.
 
 Playback can be paused, replayed or adjusted in speed; camera follow and overlay comparison are available. Current roads and buildings are context, not historical damage inventories. Building heights appear only where the basemap supplies a height.
 
