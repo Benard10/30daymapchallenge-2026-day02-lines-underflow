@@ -196,9 +196,8 @@ window.floodTimeline=(()=>{
  const stopCache=new Map();
  let followRiver=true,lastTourStop='',showBuildings=true,pins=[],pinKey='',pinPopup=null,lastSnapshot='';
  let analysis=false,observedArea=0,basemapPaint=[],hasLaunched=false;
- let scenes=[],satelliteOn=true,satelliteKey='';
  let active=false,index=10,playing=false,progress=0,speed=1,raf=0,last=0,lastPaint=0,data={},loadError=false,dataReady=false,overlayVisible=true,lastVisibility='';
- const ids=['flood-clouds','flood-observed','flood-edge','flood-observed-2025','flood-edge-2025','flood-water-shimmer','flood-extent-waves-2024','flood-extent-waves-2025','flood-hazard','flood-hazard-edge','flood-pulse','flood-flow-bed','flood-extent-waves-model','flood-buildings','flood-reported-road','flood-reported-sections','flood-focus-fill','flood-focus-edge','flood-focus-waves','flood-road-wash','flood-road-flow'];
+ const ids=['flood-clouds','flood-observed','flood-edge','flood-observed-2025','flood-edge-2025','flood-water-shimmer','flood-extent-waves-2024','flood-extent-waves-2025','flood-hazard','flood-hazard-edge','flood-pulse','flood-flow-bed','flood-extent-waves-model','flood-buildings','flood-reported-road','flood-reported-sections','flood-focus-fill','flood-focus-edge','flood-focus-waves','flood-road-wash','flood-road-core','flood-road-flow'];
  let lastInteraction=0;
  const duration=()=>!hasGeometry()?8000:mode()==='model'?12000:Math.max(42000,reportLocations().length*5500);
  const cameraEase=t=>1-Math.pow(1-t,4);
@@ -254,21 +253,21 @@ window.floodTimeline=(()=>{
   const flowWidth=['interpolate',['linear'],['zoom'],9,.8,12,2.3,15,4,18,6];
   map.addLayer({id:'flood-flow-bed',type:'line',source:'flood-rivers',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#05394d','line-width':['interpolate',['linear'],['zoom'],9,2.8,12,4.3,15,6,18,8],'line-opacity':.72,'line-blur':.7}});
   map.addLayer({id:'flood-pulse',type:'line',source:'flood-rivers',layout:{'line-join':'round'},paint:{'line-pattern':'water-flow-0','line-width':flowWidth,'line-opacity':.95,'line-pattern-transition':{duration:0}}});
-  if(data['flood-reported-sections'])map.addLayer({id:'flood-reported-sections',type:'line',source:'flood-reported-sections',paint:{'line-color':'#dfb969','line-width':['interpolate',['linear'],['zoom'],10,2,15,4],'line-opacity':.75}},before);
-  if(data['flood-reported-sections'])map.addLayer({id:'flood-reported-road',type:'line',source:'flood-reported-sections',paint:{'line-color':'#76d9ee','line-width':5,'line-opacity':.8,'line-dasharray':[2,2]}},before);
+  if(data['flood-reported-sections'])map.addLayer({id:'flood-reported-sections',type:'line',source:'flood-reported-sections',paint:{'line-color':'#315e86','line-width':['interpolate',['linear'],['zoom'],10,2,15,4],'line-opacity':.75}},before);
+  if(data['flood-reported-sections'])map.addLayer({id:'flood-reported-road',type:'line',source:'flood-reported-sections',paint:{'line-color':'#ffaaa3','line-width':8,'line-opacity':.24}},before);
   if(!map.getSource('flood-focus-area'))map.addSource('flood-focus-area',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
   map.addLayer({id:'flood-focus-fill',type:'fill',source:'flood-focus-area',paint:{'fill-color':'#39bce8','fill-opacity':.3}},before);
   map.addLayer({id:'flood-focus-edge',type:'line',source:'flood-focus-area',paint:{'line-color':'#b4f5ff','line-width':2.5,'line-opacity':.95}},before);
   const roadFlow=(data['flood-reported-sections']?.features||[]).flatMap(f=>f.geometry.coordinates.map(line=>({type:'Feature',properties:f.properties,geometry:{type:'LineString',coordinates:line}})));
   map.addSource('flood-road-flow-source',{type:'geojson',lineMetrics:true,data:{type:'FeatureCollection',features:roadFlow}});
-  map.addLayer({id:'flood-road-wash',type:'line',source:'flood-road-flow-source',paint:{'line-color':'#2f9cc9','line-width':20,'line-blur':9,'line-opacity':.32}},before);
-  map.addLayer({id:'flood-road-flow',type:'line',source:'flood-road-flow-source',paint:{'line-pattern':'water-flow-0','line-width':6,'line-opacity':.95,'line-pattern-transition':{duration:0}}},before);
+  map.addLayer({id:'flood-road-wash',type:'line',source:'flood-road-flow-source',paint:{'line-color':'#092b57','line-width':22,'line-blur':5,'line-opacity':.65}},before);
+  map.addLayer({id:'flood-road-core',type:'line',source:'flood-road-flow-source',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#123e70','line-width':10,'line-opacity':.95}},before);
+  map.addLayer({id:'flood-road-flow',type:'line',source:'flood-road-flow-source',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#ff6964','line-width':5,'line-opacity':.95,'line-blur':.35}},before);
   // Repeat water motion across every measured footprint, not just the tour stop.
   for(const [id,source] of [['flood-extent-waves-2024','flood-observed'],['flood-extent-waves-2025','flood-observed-2025'],['flood-extent-waves-model','flood-hazard']]){
    if(data[source])map.addLayer({id,type:'fill',source,paint:{'fill-pattern':'flood-wave-0','fill-opacity':.84,'fill-pattern-transition':{duration:0}}},before);
   }
   map.addLayer({id:'flood-focus-waves',type:'fill',source:'flood-focus-area',paint:{'fill-pattern':'flood-wave-0','fill-opacity':.84,'fill-pattern-transition':{duration:0}}},before);
-  installSatellite();
   focusKey='';stopCache.clear();
   lastVisibility='';paint();
   if(analysis)styleAnalysis(true);
@@ -417,8 +416,8 @@ window.floodTimeline=(()=>{
    for(const marker of pins)marker.getElement?.().classList.toggle('is-current',marker.getElement().dataset.pinKey===key);
   }
   if(map.getLayer('flood-reported-sections'))map.setFilter('flood-reported-sections',['in',['get','report_id'],['literal',reports.filter(f=>f.properties.kind==='road').map(f=>f.properties.id)]]);
-  for(const id of ['flood-road-wash','flood-road-flow'])if(map.getLayer(id))map.setFilter(id,['in',['get','report_id'],['literal',reports.filter(f=>f.properties.kind==='road').map(f=>f.properties.id)]]);
-  if(map.getLayer('flood-reported-road')){map.setFilter('flood-reported-road',['==',['get','report_id'],key]);map.setPaintProperty('flood-reported-road','line-opacity',playing&&!reduced.matches?.65+.25*Math.sin(progress*Math.PI*80):.8);}
+  for(const id of ['flood-road-wash','flood-road-core','flood-road-flow'])if(map.getLayer(id))map.setFilter(id,['in',['get','report_id'],['literal',reports.filter(f=>f.properties.kind==='road').map(f=>f.properties.id)]]);
+  if(map.getLayer('flood-reported-road')){map.setFilter('flood-reported-road',['==',['get','report_id'],key]);map.setPaintProperty('flood-reported-road','line-opacity',.24);}
  }
  function clearPins(){for(const marker of pins)marker.remove();pins=[];pinPopup?.remove();pinPopup=null;}
  function syncPins(){
@@ -437,34 +436,14 @@ window.floodTimeline=(()=>{
    pins.push(new maplibregl.Marker({element,anchor:'bottom'}).setLngLat(pin.coordinates).addTo(map));
   }
  }
- function selectedScene(){
-  const date={'2024-april-reported':'2024-04-22','2024-may-observed':'2024-04-22',
-   '2025-april-reported':'2025-04-27','2025-04-26':'2025-04-27',
-   '2026-march-reported':'2026-03-13','2026-03-12':'2026-03-13','2026-03-16':'2026-03-13'}[event().id];
-  return scenes.find(scene=>scene.date===date);
- }
- function installSatellite(){
-  if(!map||!styleReady||!scenes.length||map.getSource('satellite-reference'))return;
-  const scene=selectedScene()||scenes[0];
-  map.addSource('satellite-reference',{type:'image',url:scene.image,coordinates:scene.coordinates});
-  const before=map.getLayer('flood-clouds')?'flood-clouds':map.getLayer('network-glow')?'network-glow':undefined;
-  map.addLayer({id:'satellite-reference',type:'raster',source:'satellite-reference',
-   layout:{visibility:'none'},paint:{'raster-opacity':.88,'raster-fade-duration':300}},before);
-  satelliteKey=scene.date;
- }
- function paintSatellite(){
-  const scene=selectedScene(),button=$('satellite-toggle'),caption=$('satellite-caption');
-  button.hidden=!active||!scene;button.setAttribute('aria-pressed',String(satelliteOn));
-  caption.hidden=!active||!scene||!satelliteOn;
-  if(scene){
-   $('satellite-date').textContent='Sentinel-2 - '+scene.date;
-   $('satellite-source').href=scene.catalogue;
-   $('satellite-caption-note').textContent=['observed2024','radar'].includes(mode())?'Water observation - '+(snapshotDate()||'2024-05-01')+' - dates differ':'Optical reference - not a flood boundary';
-  }
-  installSatellite();
-  const source=map.getSource('satellite-reference');
-  if(source&&scene&&satelliteOn&&satelliteKey!==scene.date){source.updateImage({url:scene.image,coordinates:scene.coordinates});satelliteKey=scene.date;}
-  if(map.getLayer('satellite-reference'))map.setLayoutProperty('satellite-reference','visibility',active&&scene&&satelliteOn?'visible':'none');
+ function paintRoadStress(){
+  if(!map.getLayer('flood-road-flow'))return;
+  // A travelling highlight on contextual road lines, not a flood-depth scale.
+  if(reduced.matches){map.setPaintProperty('flood-road-flow','line-gradient',null);return;}
+  const travel=progress*duration()/3600;
+  map.setPaintProperty('flood-road-flow','line-gradient',['interpolate',['linear'],
+   ['sin',['*',['-', ['*',['line-progress'],3],travel],Math.PI*2]],
+   -1,'rgba(255,80,86,0)',.15,'rgba(255,80,86,.08)',.65,'#e84960',.9,'#ff8176',1,'#ffe0d5']);
  }
  function paintExtentWater(){
   // Visual texture only: polygon boundaries remain fixed to the source observation.
@@ -478,14 +457,13 @@ window.floodTimeline=(()=>{
  }
  function paint(){
   if(!map)return;
-  paintSatellite();
   if(active){for(const id of ['network-solid','network-seasonal'])if(map.getLayer(id))map.setPaintProperty(id,'line-opacity',hasGeometry()&&overlayVisible ? .38 : .8);if(map.getLayer('network-glow'))map.setPaintProperty('network-glow','line-opacity',.25);}
   if(map.getLayer('flood-hazard')){const filter=['<=',['get','rp'],hazardPeriod];map.setFilter('flood-hazard',filter);map.setFilter('flood-hazard-edge',filter);map.setPaintProperty('flood-hazard','fill-color','#42b7d2');map.setPaintProperty('flood-hazard-edge','line-color','#8ce1ed');}
   document.querySelectorAll('[data-hazard-period]').forEach(button=>button.setAttribute('aria-pressed',String(Number(button.dataset.hazardPeriod)===hazardPeriod)));
   const date=snapshotDate(),visibility=`${active}/${index}/${overlayVisible}/${showBuildings}`;
   if(visibility!==lastVisibility){
    for(const id of ids)if(map.getLayer(id)){
-    const show=id==='flood-extent-waves-model'?mode()==='model':id==='flood-extent-waves-2024'?mode()==='observed2024':id==='flood-extent-waves-2025'?mode()==='radar':['flood-road-wash','flood-road-flow'].includes(id)?mode()==='reports':id==='flood-reported-sections'?mode()==='reports':id.startsWith('flood-focus-')?['observed2024','radar'].includes(mode()):id==='flood-reported-road'?mode()==='reports':id==='flood-buildings'?showBuildings&&hasGeometry():['flood-pulse','flood-flow-bed'].includes(id)?true:mode()==='observed2024'?['flood-clouds','flood-observed','flood-edge'].includes(id):mode()==='radar'?['flood-observed-2025','flood-edge-2025','flood-water-shimmer'].includes(id):mode()==='model'?['flood-hazard','flood-hazard-edge'].includes(id):false;
+    const show=id==='flood-extent-waves-model'?mode()==='model':id==='flood-extent-waves-2024'?mode()==='observed2024':id==='flood-extent-waves-2025'?mode()==='radar':['flood-road-wash','flood-road-core','flood-road-flow'].includes(id)?mode()==='reports':id==='flood-reported-sections'?mode()==='reports':id.startsWith('flood-focus-')?['observed2024','radar'].includes(mode()):id==='flood-reported-road'?mode()==='reports':id==='flood-buildings'?showBuildings&&hasGeometry():['flood-pulse','flood-flow-bed'].includes(id)?true:mode()==='observed2024'?['flood-clouds','flood-observed','flood-edge'].includes(id):mode()==='radar'?['flood-observed-2025','flood-edge-2025','flood-water-shimmer'].includes(id):mode()==='model'?['flood-hazard','flood-hazard-edge'].includes(id):false;
     map.setLayoutProperty(id,'visibility',active&&overlayVisible&&show?'visible':'none');
    }lastVisibility=visibility;
   }
@@ -495,7 +473,8 @@ window.floodTimeline=(()=>{
   }
   if(map.getLayer('flood-observed')){map.setPaintProperty('flood-observed','fill-opacity',.6);map.setPaintProperty('flood-edge','line-opacity',.95);}
   const pattern='water-flow-'+waterPhase();
-  for(const id of ['flood-pulse','flood-road-flow'])if(map.getLayer(id))map.setPaintProperty(id,'line-pattern',pattern);
+  if(map.getLayer('flood-pulse'))map.setPaintProperty('flood-pulse','line-pattern',pattern);
+  paintRoadStress();
   paintExtentWater();
   if(map.getLayer('flood-focus-waves'))map.setPaintProperty('flood-focus-waves','fill-pattern','flood-wave-'+waterPhase());
   $('flood-stage').textContent=event().note;
@@ -578,7 +557,6 @@ window.floodTimeline=(()=>{
   placeControls();
   document.addEventListener('visibilitychange',paint);
   $('flood-mode').onclick=()=>setMode('flood');
-  $('satellite-toggle').onclick=()=>{satelliteOn=!satelliteOn;paintSatellite();};
   $('flood-timeline').max=String(events.length*100);
   const years=[...new Set(events.map(e=>e.year))];
   $('flood-years').innerHTML=years.map(year=>`<button type="button" data-flood-year="${escapeHTML(year)}" aria-pressed="false">${escapeHTML(year)}</button>`).join('');
@@ -618,7 +596,6 @@ window.floodTimeline=(()=>{
   syncFollow();
   document.querySelectorAll('[data-flood-place]').forEach(b=>b.onclick=()=>camera(b.dataset.floodPlace));
   const inputs=[['flood-reported-locations','flood-reported-locations'],['flood-reported-roads','flood-reported-roads'],['flood-observed','flood-observed-2024'],['flood-clouds','flood-clouds-2024'],['flood-observed-2025','flood-observed-2025'],['flood-hazard','flood-hazard-baseline'],['flood-observed-2026','flood-observed-2026']];
-  getJSON('data/satellite-scenes.json').then(value=>{scenes=value.scenes;paintSatellite();}).catch(()=>{$('satellite-toggle').hidden=true;});
   const results=await Promise.allSettled(inputs.map(async([id,file])=>{data[id]=await getJSON(`data/${file}.geojson?v=20261103-unique-places`);}));
   // One date-filtered radar rendering pipeline; source files retain their own provenance.
   if(data['flood-observed-2026']){

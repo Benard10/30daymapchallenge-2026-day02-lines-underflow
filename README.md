@@ -75,13 +75,9 @@ The prepared dataset retains the lowest sampled return period with modelled dept
 
 ### Animation
 
-Camera views frame the active reference or observation group. All mapped river, stream and drainage paths receive moving cyan-white flow marks with a dark contrast edge. All reported road references within the active event receive the same moving pattern; report pins have a screen-sized water ripple, and all available satellite polygons for the selected date receive animated wave texture, with a brighter outline around the current camera stop. These effects are illustrative: they do not simulate flood spread, timing, water depth, velocity or inundated road width. Foam ripples animate inside the fixed satellite and selected model footprints. Decorative flow marks move west to east and do not measure actual flow direction.
+Camera views frame the active reference or observation group. All mapped river, stream and drainage paths receive moving cyan-white flow marks with a dark contrast edge. Reported road references within the active event use a dark-blue corridor with smooth red travelling highlights, distinct from the river arrows. Red highlights identify reported disruption; they do not encode measured severity or depth. Report pins have a screen-sized water ripple, and all available satellite polygons for the selected date receive animated wave texture, with a brighter outline around the current camera stop. These effects are illustrative: they do not simulate flood spread, timing, water depth, velocity or inundated road width. Foam ripples animate inside the fixed satellite and selected model footprints. Decorative flow marks move west to east and do not measure actual flow direction.
 
 Playback can be paused, replayed or adjusted in speed; camera follow and overlay comparison are available. Current roads and buildings are context, not historical damage inventories. Building heights appear only where the basemap supplies a height.
-
-### Satellite image reference
-
-Three checked image dates are included: **22 April 2024**, **27 April 2025** and **13 March 2026**. The **Satellite image** button switches between the map and local, georeferenced Sentinel-2 RGB image extracts. Each image retains its acquisition date, catalogue link, scene cloud percentage and processing details in `data/satellite-scenes.json`. The image and water observation dates can differ; the image is a visual reference, not the source of a new flood boundary. Clouds, shadows, ponds and permanent water can obscure or resemble flooding. Image crops are resampled to Web Mercator and saved as small JPEGs for static hosting.
 
 ### Rainfall outlook and prediction limits
 
@@ -94,8 +90,6 @@ The bulletin does not provide a local storm-intensity time series. No calibrated
 **Base geography:** [OpenStreetMap contributors, ODbL 1.0](https://www.openstreetmap.org/copyright). Waterways, place references and the county outline retain source metadata. The local style adapts [OpenFreeMap Positron](https://tiles.openfreemap.org/styles/positron); the map retains OpenFreeMap, OpenMapTiles and OSM attribution.
 
 **Satellite data:** [UNITAR-UNOSAT Nairobi product](https://unosat.org/products/3834). Analysis/production: UNOSAT. Source imagery: CNES 2024 / Airbus Defence and Space. Only derived vectors are bundled, not imagery. [JRC GDACS archive, event 1103225](https://www.gdacs.org/Floods/report.aspx?detail=true&episodeid=2&eventid=1103225&eventtype=FL) supplies the GFM detections; see [GFM limitations](https://confluence.ecmwf.int/spaces/CEMS/pages/242067378/Web+Layers).
-
-**Sentinel-2 imagery:** Contains modified Copernicus Sentinel data 2024-2026, processed by ESA and hosted through [Element 84 Earth Search](https://earth-search.aws.element84.com/v1/collections/sentinel-2-l2a). Image extracts retain item URLs and source COG URLs in the scene manifest. Redistribution follows the [Copernicus Sentinel data legal notice](https://sentinels.copernicus.eu/documents/247904/690755/Sentinel_Data_Legal_Notice). These optical reference images are separate from UNOSAT?s Pl?iades-based analysis.
 
 **Rain outlook:** [KMD weekly forecast issued 2 November 2026](https://meteo.go.ke/documents/5513/Weekly_Weather_Forecast_valid_from_3rd_to_9th__November_2026.pdf).
 
