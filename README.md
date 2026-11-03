@@ -32,6 +32,9 @@ Named segments are grouped by source name and type; that does not establish conn
 | 26 April 2025 | Partial GFM radar detections |
 | 3-4 October 2025 | Reported road and city-centre references |
 | 6-7 March 2026 | Reported locations with individual dates or broader March reporting periods |
+| 12 March 2026 | Partial Sentinel-1 / GFM water detections |
+| 16 March 2026 | Partial Sentinel-1 / GFM water detections |
+| 3-9 November 2026 | Archived KMD rain outlook; no forecast flood extent |
 | Model baseline | Long-term model scenarios, without an event date |
 
 Timeline spacing is for navigation, not elapsed-year scale. The earliest included account is 1961, not a claim about Nairobi's first flood. Climate context does not attribute every local flood to El Nino. Casualty totals are omitted to avoid mixing different reporting dates and geographic areas.
@@ -52,7 +55,7 @@ There are **39 approximate report references**: three for April 2024, four for A
 
 Report coordinates use OSM place nodes or road vertices near the reported landmark. Contextual road highlights are clipped locally for orientation; they do not establish surveyed flooded lengths. The Kangundo Road pin near Ruai is a road reference: the April 2024 article does not specify an exact affected section. South B and Mathare references likewise do not claim surveyed incident addresses.
 
-The 2024 observation contains 751 clipped polygon components. The 2025 data contains 13 partial detections from two satellite dates. These are not complete or field-validated event extents. Radar may miss urban flooding, and some detections near Ruai treatment ponds may reflect water changes or classification errors. No urban exclusion raster is included. Missing detections or cloud-obscured areas are not evidence of dry ground.
+The 2024 observation contains 751 clipped polygon components. The 2025 data contains 13 partial detections from two satellite dates. The new March 2026 dataset contains 29 clipped components from GFM observations on 12 and 16 March (GDACS event 1103792). These later observations do not establish the peak extent or the boundaries of the earlier 6-7 March incidents. These are not complete or field-validated event extents. Radar may miss urban flooding, and some detections near Ruai treatment ponds may reflect water changes or classification errors. No urban exclusion raster is included. Missing detections or cloud-obscured areas are not evidence of dry ground.
 
 Repeated satellite place names are grouped into one display pin and camera stop per observation date; all source polygons remain. Names prefixed with Near identify a nearby OSM reference, not flooding throughout the entire neighbourhood. Satellite readouts measure highlighted polygon area, not depth, discharge or severity. Different coverage and evidence types prevent direct comparisons of full-event magnitude.
 
@@ -72,15 +75,31 @@ The prepared dataset retains the lowest sampled return period with modelled dept
 
 ### Animation
 
-Camera views frame the active reference or observation group. Selected road sections receive moving light, report pins have a screen-sized water ripple, and selected satellite polygons receive wave texture. These effects are illustrative: they do not simulate flood spread, timing, water depth, velocity or inundated road width. Decorative river pulses move west to east and do not measure actual flow direction.
+Camera views frame the active reference or observation group. Selected road sections receive moving light, report pins have a screen-sized water ripple, and all available satellite polygons for the selected date receive animated wave texture, with a brighter outline around the current camera stop. These effects are illustrative: they do not simulate flood spread, timing, water depth, velocity or inundated road width. Decorative river pulses move west to east and do not measure actual flow direction.
 
-Playback can be paused, replayed or adjusted in speed; camera follow and overlay comparison are available. Returning to the dashboard stops playback and removes flood pins, popups and overlays. Current roads and buildings are context, not historical damage inventories. Building heights appear only where the basemap supplies a height.
+Playback can be paused, replayed or adjusted in speed; camera follow and overlay comparison are available. Current roads and buildings are context, not historical damage inventories. Building heights appear only where the basemap supplies a height.
+
+### Satellite image reference
+
+Three checked image dates are included: **22 April 2024**, **27 April 2025** and **13 March 2026**. The **Satellite image** button switches between the map and local, georeferenced Sentinel-2 RGB image extracts. Each image retains its acquisition date, catalogue link, scene cloud percentage and processing details in `data/satellite-scenes.json`. The image and water observation dates can differ; the image is a visual reference, not the source of a new flood boundary. Clouds, shadows, ponds and permanent water can obscure or resemble flooding. Image crops are resampled to Web Mercator and saved as small JPEGs for static hosting.
+
+### Rainfall outlook and prediction limits
+
+The **Outlook** chapter records the KMD bulletin issued **2 November 2026**, valid **3-9 November 2026**. It includes Nairobi for rain and showers. This is a fixed, dated snapshot, not an automatically updated warning. The evidence record is `data/rainfall-outlook.json`.
+
+The bulletin does not provide a local storm-intensity time series. No calibrated rainfall-runoff or urban inundation model is bundled. Consequently, the app does **not** scale observed flood polygons by rainfall, assign future flood probabilities or claim a forecast water extent. Past observations and the long-term Model chapter remain separate references. A quantitative forecast layer requires suitable short-duration rainfall, antecedent conditions, terrain/drainage modelling and validation against observed floods.
 
 ## Sources and attribution
 
 **Base geography:** [OpenStreetMap contributors, ODbL 1.0](https://www.openstreetmap.org/copyright). Waterways, place references and the county outline retain source metadata. The local style adapts [OpenFreeMap Positron](https://tiles.openfreemap.org/styles/positron); the map retains OpenFreeMap, OpenMapTiles and OSM attribution.
 
 **Satellite data:** [UNITAR-UNOSAT Nairobi product](https://unosat.org/products/3834). Analysis/production: UNOSAT. Source imagery: CNES 2024 / Airbus Defence and Space. Only derived vectors are bundled, not imagery. [JRC GDACS archive, event 1103225](https://www.gdacs.org/Floods/report.aspx?detail=true&episodeid=2&eventid=1103225&eventtype=FL) supplies the GFM detections; see [GFM limitations](https://confluence.ecmwf.int/spaces/CEMS/pages/242067378/Web+Layers).
+
+**Sentinel-2 imagery:** Contains modified Copernicus Sentinel data 2024-2026, processed by ESA and hosted through [Element 84 Earth Search](https://earth-search.aws.element84.com/v1/collections/sentinel-2-l2a). Image extracts retain item URLs and source COG URLs in the scene manifest. Redistribution follows the [Copernicus Sentinel data legal notice](https://sentinels.copernicus.eu/documents/247904/690755/Sentinel_Data_Legal_Notice). These optical reference images are separate from UNOSAT?s Pl?iades-based analysis.
+
+**Rain outlook:** [KMD weekly forecast issued 2 November 2026](https://meteo.go.ke/documents/5513/Weekly_Weather_Forecast_valid_from_3rd_to_9th__November_2026.pdf).
+
+**March 2026 radar:** [JRC / GDACS event 1103792](https://www.gdacs.org/Floods/report.aspx?eventtype=FL&eventid=1103792), GFM Observed ENSEMBLE_FLOOD records, clipped to the study area. Source and limitations are embedded in `flood-observed-2026.geojson`.
 
 **Model:** [JRC global river flood hazard maps](https://jeodpp.jrc.ec.europa.eu/ftp/jrc-opendata/CEMS-GLOFAS/flood_hazard/), European Commission Joint Research Centre, Baugh et al. (2024). The source README specifies ODbL 1.0 and its copyright notice specifies CC BY 4.0; both notices are retained in the prepared data.
 

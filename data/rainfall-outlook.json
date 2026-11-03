@@ -1,0 +1,14 @@
+{
+  "issued": "2026-11-02",
+  "valid_from": "2026-11-03",
+  "valid_to": "2026-11-09",
+  "checked": "2026-11-03",
+  "provider": "Kenya Meteorological Service Authority / KMD",
+  "source": "https://meteo.go.ke/documents/5513/Weekly_Weather_Forecast_valid_from_3rd_to_9th__November_2026.pdf",
+  "summary": "Nairobi is included in the weekly outlook for morning rain and afternoon and night showers.",
+  "quantitative_nairobi_rainfall_mm": null,
+  "reason": "The county outlook does not supply a Nairobi storm hyetograph or a quantitative short-duration rainfall forecast.",
+  "forecast_extent_available": false,
+  "model_status": "No calibrated rainfall-runoff/inundation model is available. Rainfall alone is not converted to water boundaries or flood probabilities.",
+  "baseline": "Previously mapped water and long-term hazard footprints are independent references, not predictions for this forecast window."
+}

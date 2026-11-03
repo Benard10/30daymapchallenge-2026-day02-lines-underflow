@@ -285,7 +285,7 @@ function wireControls(){
 async function init(){
  try{
   if(!window.maplibregl)throw new Error('The map library could not load. Check your internet connection and refresh.');
-  map=new maplibregl.Map({container:'map',style:{version:8,sources:{},layers:[{id:'background',type:'background',paint:{'background-color':'#edf2ee'}}]},center:[36.86,-1.29],zoom:11,minZoom:8,maxZoom:18,renderWorldCopies:false});
+  map=new maplibregl.Map({container:'map',attributionControl:{customAttribution:'Contains modified Copernicus Sentinel data 2024-2026 / ESA / Element 84'},style:{version:8,sources:{},layers:[{id:'background',type:'background',paint:{'background-color':'#edf2ee'}}]},center:[36.86,-1.29],zoom:11,minZoom:8,maxZoom:18,renderWorldCopies:false});
   map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right');
   map.addControl({onAdd(){this.container=document.createElement('div');this.container.className='maplibregl-ctrl maplibregl-ctrl-group full-view-control';this.container.append($('full-view'));return this.container;},onRemove(){this.container.remove();}},'top-right');
   map.addControl(new maplibregl.ScaleControl({maxWidth:90,unit:'metric'}),'bottom-right');

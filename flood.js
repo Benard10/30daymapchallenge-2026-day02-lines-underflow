@@ -77,7 +77,7 @@ window.floodTimeline=(()=>{
     "id": "2025-04-14",
     "year": "2025",
     "label": "14 Apr 2025 | GFM detections",
-    "mode": "detected2025",
+    "mode": "radar",
     "kind": "Satellite detections - 14 April",
     "title": "A partial radar view.",
     "text": "Copernicus GFM detections from 14 April intersect this study area.",
@@ -102,7 +102,7 @@ window.floodTimeline=(()=>{
     "id": "2025-04-26",
     "year": "2025",
     "label": "26 Apr 2025 | GFM detections",
-    "mode": "detected2025",
+    "mode": "radar",
     "kind": "Satellite detections - 26 April",
     "title": "A second satellite date.",
     "text": "The available GFM archive includes another partial radar observation on 26 April.",
@@ -136,6 +136,44 @@ window.floodTimeline=(()=>{
     "url": "https://global-flood.emergency.copernicus.eu/news/239-floods-and-landslides-in-kenya-ethiopia-and-tanzania-march-2026"
   },
   {
+    "id": "2026-03-12",
+    "year": "2026",
+    "label": "2026-03-12 | GFM radar detections",
+    "mode": "radar",
+    "kind": "Satellite detections - 2026-03-12",
+    "title": "A dated radar view after the March reports.",
+    "text": "Copernicus GFM archive observations from 2026-03-12 intersect the Nairobi study area. Animated blue areas show the available water detections.",
+    "note": "Partial, unverified Sentinel-1 detections. Urban flooding can be missed; water changes and treatment ponds can be misclassified. These later observations do not establish the extent or peak of the 6-7 March road incidents. Blank areas are unknown.",
+    "source": "Copernicus GFM / JRC GDACS event 1103792",
+    "url": "https://www.gdacs.org/Floods/report.aspx?eventtype=FL&eventid=1103792",
+    "date": "2026-03-12"
+},  {
+    "id": "2026-03-16",
+    "year": "2026",
+    "label": "2026-03-16 | GFM radar detections",
+    "mode": "radar",
+    "kind": "Satellite detections - 2026-03-16",
+    "title": "A dated radar view after the March reports.",
+    "text": "Copernicus GFM archive observations from 2026-03-16 intersect the Nairobi study area. Animated blue areas show the available water detections.",
+    "note": "Partial, unverified Sentinel-1 detections. Urban flooding can be missed; water changes and treatment ponds can be misclassified. These later observations do not establish the extent or peak of the 6-7 March road incidents. Blank areas are unknown.",
+    "source": "Copernicus GFM / JRC GDACS event 1103792",
+    "url": "https://www.gdacs.org/Floods/report.aspx?eventtype=FL&eventid=1103792",
+    "date": "2026-03-16"
+},
+  {
+    "id": "2026-november-outlook",
+    "year": "Outlook",
+    "label": "3-9 Nov 2026 | Rainfall outlook",
+    "mode": "outlook",
+    "kind": "Rain expected - extent not predicted",
+    "title": "Incoming rain, with the evidence kept separate.",
+    "text": "The KMD weekly forecast issued 2 November includes Nairobi for morning rain and afternoon and night showers, valid 3-9 November 2026.",
+    "note": "A dated forecast snapshot, not a live warning. No Nairobi storm-intensity series or calibrated inundation model is available here. Past flood footprints cannot be scaled into a forecast boundary. See the dated satellite chapters for observed water and Model for independent long-term hazard.",
+    "source": "KMD / weekly outlook issued 2 November 2026",
+    "url": "https://meteo.go.ke/documents/5513/Weekly_Weather_Forecast_valid_from_3rd_to_9th__November_2026.pdf",
+    "date": "2026-11-03 / 2026-11-09"
+},
+  {
     "id": "model-baseline",
     "year": "Model",
     "label": "Model baseline | Not a dated event",
@@ -150,7 +188,7 @@ window.floodTimeline=(()=>{
 ];
  const event=()=>events[index];
  const mode=()=>event().mode;
- const hasGeometry=()=>['reports','observed2024','detected2025','model'].includes(mode());
+ const hasGeometry=()=>['reports','observed2024','radar','model'].includes(mode());
  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
  const compact=window.matchMedia('(max-width:900px)');
  let currentPlace='city';
@@ -158,6 +196,7 @@ window.floodTimeline=(()=>{
  const stopCache=new Map();
  let followRiver=true,lastTourStop='',showBuildings=true,pins=[],pinKey='',pinPopup=null,lastSnapshot='';
  let analysis=false,observedArea=0,basemapPaint=[],hasLaunched=false;
+ let scenes=[],satelliteOn=true,satelliteKey='';
  let active=false,index=10,playing=false,progress=0,speed=1,raf=0,last=0,lastPaint=0,data={},loadError=false,dataReady=false,overlayVisible=true,lastVisibility='';
  const ids=['flood-clouds','flood-observed','flood-edge','flood-observed-2025','flood-edge-2025','flood-water-shimmer','flood-extent-waves-2024','flood-extent-waves-2025','flood-hazard','flood-hazard-edge','flood-pulse','flood-buildings','flood-reported-road','flood-reported-sections','flood-focus-fill','flood-focus-edge','flood-focus-waves','flood-road-wash','flood-road-flow'];
  let lastInteraction=0;
@@ -197,9 +236,9 @@ window.floodTimeline=(()=>{
   map.addSource('flood-road-flow-source',{type:'geojson',lineMetrics:true,data:{type:'FeatureCollection',features:roadFlow}});
   map.addLayer({id:'flood-road-wash',type:'line',source:'flood-road-flow-source',paint:{'line-color':'#2f9cc9','line-width':20,'line-blur':9,'line-opacity':.32}},before);
   map.addLayer({id:'flood-road-flow',type:'line',source:'flood-road-flow-source',paint:{'line-color':'#c7f7ff','line-width':4,'line-opacity':.9}},before);
-  for(let phase=0;phase<8;phase++){
+  for(let phase=0;phase<24;phase++){
    const canvas=document.createElement('canvas');canvas.width=64;canvas.height=64;const c=canvas.getContext('2d');c.strokeStyle='rgba(195,246,255,.65)';c.lineWidth=1.4;
-   for(let y=8;y<64;y+=16){c.beginPath();for(let x=-4;x<=68;x++){const v=y+2*Math.sin(x/64*Math.PI*2+phase/8*Math.PI*2);x===-4?c.moveTo(x,v):c.lineTo(x,v);}c.stroke();}
+   for(let y=8;y<64;y+=16){c.beginPath();for(let x=-4;x<=68;x++){const v=y+2*Math.sin(x/64*Math.PI*2+phase/24*Math.PI*2);x===-4?c.moveTo(x,v):c.lineTo(x,v);}c.stroke();}
    if(!map.hasImage('flood-wave-'+phase))map.addImage('flood-wave-'+phase,c.getImageData(0,0,64,64));
   }
   // Repeat water motion across every measured footprint, not just the tour stop.
@@ -207,6 +246,7 @@ window.floodTimeline=(()=>{
    if(data[source])map.addLayer({id,type:'fill',source,paint:{'fill-pattern':'flood-wave-0','fill-opacity':.55}},before);
   }
   map.addLayer({id:'flood-focus-waves',type:'fill',source:'flood-focus-area',paint:{'fill-pattern':'flood-wave-0','fill-opacity':.55}},before);
+  installSatellite();
   focusKey='';stopCache.clear();
   lastVisibility='';paint();
   if(analysis)styleAnalysis(true);
@@ -243,7 +283,7 @@ window.floodTimeline=(()=>{
   const polygons=geometry.type==='Polygon'?[geometry.coordinates]:geometry.coordinates;
   return polygons.reduce((total,rings)=>total+Math.max(0,ringArea(rings[0])-rings.slice(1).reduce((sum,ring)=>sum+ringArea(ring),0)),0)/1e6;
  }
- function observedData(){return mode()==='observed2024'?data['flood-observed']:mode()==='detected2025'?data['flood-observed-2025']:undefined;}
+ function observedData(){return mode()==='observed2024'?data['flood-observed']:mode()==='radar'?data['flood-observed-2025']:undefined;}
  function snapshotDate(){return event().date||'';}
  function areaOf(input){return (input?.features||[]).reduce((total,feature)=>total+polygonArea(feature.geometry),0);}
  function reportLocations(){return (data['flood-reported-locations']?.features||[]).filter(f=>mode()==='reports'&&f.properties.event_id===event().id);}
@@ -275,7 +315,7 @@ window.floodTimeline=(()=>{
   const input=observedData();if(!input)return [];
   const groups=new Map();
   for(const pin of input.metadata.map_pins||[]){
-   if(mode()==='detected2025'&&pin.observed!==snapshotDate())continue;
+   if(mode()==='radar'&&pin.observed!==snapshotDate())continue;
    const name=pin.name.trim().toLowerCase().replace(/\s+/g,' '),key=pin.observed+'/'+name;
    const feature=mode()==='observed2024'?input.features[pin.component]:input.features.find(f=>f.properties.component===pin.component);
    if(!feature)continue;
@@ -293,7 +333,7 @@ window.floodTimeline=(()=>{
    return {bounds:extentAround([...roadPoints,f.geometry.coordinates],f.properties.kind==='road'?.0025:.004),report:f,pin:{coordinates:f.geometry.coordinates,name:f.properties.name,key:f.properties.id}};
   });
   const input=observedData();
-  if(['observed2024','detected2025'].includes(mode())){
+  if(['observed2024','radar'].includes(mode())){
    let groups=satelliteGroups();
    if(mode()==='observed2024'){
     const tourComponents=new Set((input.metadata.visual_tour?.stops||[]).map(s=>s.observed_component));
@@ -330,11 +370,14 @@ window.floodTimeline=(()=>{
   if(mode()==='reports'){
    $('flood-event-date').textContent=report?.properties.period||e.label.split(' | ')[0];
    measure='Reported impact - extent not measured';
-  }else if(['observed2024','detected2025'].includes(mode())&&stop){
+  }else if(['observed2024','radar'].includes(mode())&&stop){
    const km2=areaOf({features:stop.features||[stop.feature]});
    const area=km2<.01?`${Math.round(km2*1e6).toLocaleString()} m\u00b2`:`${km2.toFixed(2)} km\u00b2`;
    measure=`${area} mapped water - depth unknown`;
-   $('flood-event-date').textContent=mode()==='detected2025'?snapshotDate():'1 May 2024';
+   $('flood-event-date').textContent=mode()==='radar'?snapshotDate():'1 May 2024';
+  }else if(mode()==='outlook'){
+   $('flood-section-name').textContent='Rain and showers expected in Nairobi';
+   measure='KMD outlook - no predicted flood boundary';
   }else if(mode()==='model'){
    const km2=areaOf({features:(data['flood-hazard']?.features||[]).filter(f=>f.properties.rp<=hazardPeriod)});
    measure=`${km2.toFixed(2)} km\u00b2 model footprint - ${hazardPeriod}-year scenario`;
@@ -357,7 +400,7 @@ window.floodTimeline=(()=>{
  }
  function clearPins(){for(const marker of pins)marker.remove();pins=[];pinPopup?.remove();pinPopup=null;}
  function syncPins(){
-  const key=`${active}/${index}/${mode()==='detected2025'?snapshotDate():''}/${overlayVisible}/${dataReady}`;if(key===pinKey)return;pinKey=key;clearPins();
+  const key=`${active}/${index}/${mode()==='radar'?snapshotDate():''}/${overlayVisible}/${dataReady}`;if(key===pinKey)return;pinKey=key;clearPins();
   if(!active||!overlayVisible||!hasGeometry()||!window.maplibregl)return;
   const locations=satelliteGroups().map(group=>group.pin);
   for(const feature of reportLocations()){
@@ -372,9 +415,38 @@ window.floodTimeline=(()=>{
    pins.push(new maplibregl.Marker({element,anchor:'bottom'}).setLngLat(pin.coordinates).addTo(map));
   }
  }
+ function selectedScene(){
+  const date={'2024-april-reported':'2024-04-22','2024-may-observed':'2024-04-22',
+   '2025-april-reported':'2025-04-27','2025-04-26':'2025-04-27',
+   '2026-march-reported':'2026-03-13','2026-03-12':'2026-03-13','2026-03-16':'2026-03-13'}[event().id];
+  return scenes.find(scene=>scene.date===date);
+ }
+ function installSatellite(){
+  if(!map||!styleReady||!scenes.length||map.getSource('satellite-reference'))return;
+  const scene=selectedScene()||scenes[0];
+  map.addSource('satellite-reference',{type:'image',url:scene.image,coordinates:scene.coordinates});
+  const before=map.getLayer('flood-clouds')?'flood-clouds':map.getLayer('network-glow')?'network-glow':undefined;
+  map.addLayer({id:'satellite-reference',type:'raster',source:'satellite-reference',
+   layout:{visibility:'none'},paint:{'raster-opacity':.88,'raster-fade-duration':300}},before);
+  satelliteKey=scene.date;
+ }
+ function paintSatellite(){
+  const scene=selectedScene(),button=$('satellite-toggle'),caption=$('satellite-caption');
+  button.hidden=!active||!scene;button.setAttribute('aria-pressed',String(satelliteOn));
+  caption.hidden=!active||!scene||!satelliteOn;
+  if(scene){
+   $('satellite-date').textContent='Sentinel-2 - '+scene.date;
+   $('satellite-source').href=scene.catalogue;
+   $('satellite-caption-note').textContent=['observed2024','radar'].includes(mode())?'Water observation - '+(snapshotDate()||'2024-05-01')+' - dates differ':'Optical reference - not a flood boundary';
+  }
+  installSatellite();
+  const source=map.getSource('satellite-reference');
+  if(source&&scene&&satelliteOn&&satelliteKey!==scene.date){source.updateImage({url:scene.image,coordinates:scene.coordinates});satelliteKey=scene.date;}
+  if(map.getLayer('satellite-reference'))map.setLayoutProperty('satellite-reference','visibility',active&&scene&&satelliteOn?'visible':'none');
+ }
  function paintExtentWater(){
   // Visual texture only: polygon boundaries remain fixed to the source observation.
-  const phase=reduced.matches?0:Math.floor(progress*120)%8;
+  const phase=reduced.matches?0:Math.floor(progress*duration()/65)%24;
   for(const id of ['flood-extent-waves-2024','flood-extent-waves-2025']){
    if(!map.getLayer(id))continue;
    if(id.endsWith('2025'))map.setFilter(id,['==',['get','observed'],snapshotDate()]);
@@ -383,13 +455,14 @@ window.floodTimeline=(()=>{
  }
  function paint(){
   if(!map)return;
+  paintSatellite();
   if(active){for(const id of ['network-solid','network-seasonal'])if(map.getLayer(id))map.setPaintProperty(id,'line-opacity',hasGeometry()&&overlayVisible ? .38 : .8);if(map.getLayer('network-glow'))map.setPaintProperty('network-glow','line-opacity',.25);}
   if(map.getLayer('flood-hazard')){const filter=['<=',['get','rp'],hazardPeriod];map.setFilter('flood-hazard',filter);map.setFilter('flood-hazard-edge',filter);map.setPaintProperty('flood-hazard','fill-color','#42b7d2');map.setPaintProperty('flood-hazard-edge','line-color','#8ce1ed');}
   document.querySelectorAll('[data-hazard-period]').forEach(button=>button.setAttribute('aria-pressed',String(Number(button.dataset.hazardPeriod)===hazardPeriod)));
   const date=snapshotDate(),visibility=`${active}/${index}/${overlayVisible}/${showBuildings}`;
   if(visibility!==lastVisibility){
    for(const id of ids)if(map.getLayer(id)){
-    const show=id==='flood-extent-waves-2024'?mode()==='observed2024':id==='flood-extent-waves-2025'?mode()==='detected2025':['flood-road-wash','flood-road-flow'].includes(id)?mode()==='reports':id==='flood-reported-sections'?mode()==='reports':id.startsWith('flood-focus-')?['observed2024','detected2025'].includes(mode()):id==='flood-reported-road'?mode()==='reports':id==='flood-buildings'?showBuildings&&hasGeometry():id==='flood-pulse'?hasGeometry():mode()==='observed2024'?['flood-clouds','flood-observed','flood-edge'].includes(id):mode()==='detected2025'?['flood-observed-2025','flood-edge-2025','flood-water-shimmer'].includes(id):mode()==='model'?['flood-hazard','flood-hazard-edge'].includes(id):false;
+    const show=id==='flood-extent-waves-2024'?mode()==='observed2024':id==='flood-extent-waves-2025'?mode()==='radar':['flood-road-wash','flood-road-flow'].includes(id)?mode()==='reports':id==='flood-reported-sections'?mode()==='reports':id.startsWith('flood-focus-')?['observed2024','radar'].includes(mode()):id==='flood-reported-road'?mode()==='reports':id==='flood-buildings'?showBuildings&&hasGeometry():id==='flood-pulse'?hasGeometry():mode()==='observed2024'?['flood-clouds','flood-observed','flood-edge'].includes(id):mode()==='radar'?['flood-observed-2025','flood-edge-2025','flood-water-shimmer'].includes(id):mode()==='model'?['flood-hazard','flood-hazard-edge'].includes(id):false;
     map.setLayoutProperty(id,'visibility',active&&overlayVisible&&show?'visible':'none');
    }lastVisibility=visibility;
   }
@@ -405,7 +478,7 @@ window.floodTimeline=(()=>{
    map.setPaintProperty('flood-road-flow','line-gradient',['interpolate',['linear'],['sin',['*',['-',['line-progress'],progress*8],Math.PI*4]],-1,'rgba(75,180,213,.1)',.2,'rgba(75,180,213,.2)',1,'#defbff']);
   }
   paintExtentWater();
-  if(map.getLayer('flood-focus-waves'))map.setPaintProperty('flood-focus-waves','fill-pattern','flood-wave-'+(reduced.matches?0:Math.floor(progress*120)%8));
+  if(map.getLayer('flood-focus-waves'))map.setPaintProperty('flood-focus-waves','fill-pattern','flood-wave-'+(reduced.matches?0:Math.floor(progress*duration()/65)%24));
   $('flood-stage').textContent=event().note;
   $('flood-timeline').value=Math.round(index*100+progress*100);$('flood-timeline').setAttribute('aria-valuetext',`${event().label}, ${Math.round(progress*100)} percent navigation phase`);
   $('flood-prev').disabled=index===0;$('flood-next').disabled=index===events.length-1;
@@ -486,6 +559,7 @@ window.floodTimeline=(()=>{
   placeControls();
   document.addEventListener('visibilitychange',paint);
   $('flood-mode').onclick=()=>setMode('flood');
+  $('satellite-toggle').onclick=()=>{satelliteOn=!satelliteOn;paintSatellite();};
   $('flood-timeline').max=String(events.length*100);
   const years=[...new Set(events.map(e=>e.year))];
   $('flood-years').innerHTML=years.map(year=>`<button type="button" data-flood-year="${escapeHTML(year)}" aria-pressed="false">${escapeHTML(year)}</button>`).join('');
@@ -524,12 +598,19 @@ window.floodTimeline=(()=>{
   map?.on('dragstart',event=>{if(event.originalEvent){followRiver=false;syncFollow();}});
   syncFollow();
   document.querySelectorAll('[data-flood-place]').forEach(b=>b.onclick=()=>camera(b.dataset.floodPlace));
-  const inputs=[['flood-reported-locations','flood-reported-locations'],['flood-reported-roads','flood-reported-roads'],['flood-observed','flood-observed-2024'],['flood-clouds','flood-clouds-2024'],['flood-observed-2025','flood-observed-2025'],['flood-hazard','flood-hazard-baseline']];
+  const inputs=[['flood-reported-locations','flood-reported-locations'],['flood-reported-roads','flood-reported-roads'],['flood-observed','flood-observed-2024'],['flood-clouds','flood-clouds-2024'],['flood-observed-2025','flood-observed-2025'],['flood-hazard','flood-hazard-baseline'],['flood-observed-2026','flood-observed-2026']];
+  getJSON('data/satellite-scenes.json').then(value=>{scenes=value.scenes;paintSatellite();}).catch(()=>{$('satellite-toggle').hidden=true;});
   const results=await Promise.allSettled(inputs.map(async([id,file])=>{data[id]=await getJSON(`data/${file}.geojson?v=20261103-unique-places`);}));
+  // One date-filtered radar rendering pipeline; source files retain their own provenance.
+  if(data['flood-observed-2026']){
+   const radar=data['flood-observed-2025'];
+   if(radar){radar.features.push(...data['flood-observed-2026'].features);radar.metadata.map_pins.push(...data['flood-observed-2026'].metadata.map_pins);}
+   else data['flood-observed-2025']=data['flood-observed-2026'];
+  }
   prepareRoadSections();
   loadError=results.some(r=>r.status==='rejected');dataReady=true;
   observedArea=(data['flood-observed']?.features||[]).reduce((sum,feature)=>sum+polygonArea(feature.geometry),0);
-  install();map?.on('style.load',install);
+  install();map?.on('style.load',()=>{basemapPaint=[];install();if(analysis)styleAnalysis(true);});
   pinKey='';if(active){render();camera();}
  }
  init();
