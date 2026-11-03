@@ -9,6 +9,7 @@ The app opens directly into the flood animation: dated reports, satellite observ
 ## Explore the map
 
 - Play or scrub the flood timeline, jump between years, and follow named location pins.
+- Animated water textures cover every available satellite flood footprint for the selected observation date. Boundaries stay fixed; the motion does not reconstruct flood growth. Report-only locations remain pins without invented flood extents.
 - Compare three long-term river-flood scenarios in the undated Model chapter.
 - Use full map view on desktop, tablet or phone. Reduced-motion preferences suppress decorative motion.
 

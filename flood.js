@@ -159,7 +159,7 @@ window.floodTimeline=(()=>{
  let followRiver=true,lastTourStop='',showBuildings=true,pins=[],pinKey='',pinPopup=null,lastSnapshot='';
  let analysis=false,observedArea=0,basemapPaint=[],hasLaunched=false;
  let active=false,index=10,playing=false,progress=0,speed=1,raf=0,last=0,lastPaint=0,data={},loadError=false,dataReady=false,overlayVisible=true,lastVisibility='';
- const ids=['flood-clouds','flood-observed','flood-edge','flood-observed-2025','flood-edge-2025','flood-water-shimmer','flood-hazard','flood-hazard-edge','flood-pulse','flood-buildings','flood-reported-road','flood-reported-sections','flood-focus-fill','flood-focus-edge','flood-focus-waves','flood-road-wash','flood-road-flow'];
+ const ids=['flood-clouds','flood-observed','flood-edge','flood-observed-2025','flood-edge-2025','flood-water-shimmer','flood-extent-waves-2024','flood-extent-waves-2025','flood-hazard','flood-hazard-edge','flood-pulse','flood-buildings','flood-reported-road','flood-reported-sections','flood-focus-fill','flood-focus-edge','flood-focus-waves','flood-road-wash','flood-road-flow'];
  let lastInteraction=0;
  const duration=()=>!hasGeometry()?8000:mode()==='model'?12000:Math.max(42000,reportLocations().length*5500);
  const cameraEase=t=>1-Math.pow(1-t,4);
@@ -201,6 +201,10 @@ window.floodTimeline=(()=>{
    const canvas=document.createElement('canvas');canvas.width=64;canvas.height=64;const c=canvas.getContext('2d');c.strokeStyle='rgba(195,246,255,.65)';c.lineWidth=1.4;
    for(let y=8;y<64;y+=16){c.beginPath();for(let x=-4;x<=68;x++){const v=y+2*Math.sin(x/64*Math.PI*2+phase/8*Math.PI*2);x===-4?c.moveTo(x,v):c.lineTo(x,v);}c.stroke();}
    if(!map.hasImage('flood-wave-'+phase))map.addImage('flood-wave-'+phase,c.getImageData(0,0,64,64));
+  }
+  // Repeat water motion across every measured footprint, not just the tour stop.
+  for(const [id,source] of [['flood-extent-waves-2024','flood-observed'],['flood-extent-waves-2025','flood-observed-2025']]){
+   if(data[source])map.addLayer({id,type:'fill',source,paint:{'fill-pattern':'flood-wave-0','fill-opacity':.55}},before);
   }
   map.addLayer({id:'flood-focus-waves',type:'fill',source:'flood-focus-area',paint:{'fill-pattern':'flood-wave-0','fill-opacity':.55}},before);
   focusKey='';stopCache.clear();
@@ -316,7 +320,7 @@ window.floodTimeline=(()=>{
   $('analysis-plot').innerHTML='';
   $('analysis-source').textContent=events[index].source;$('analysis-source').href=events[index].url;
   $('analysis-summary').textContent=event().text+' '+event().note;
-  $('analysis-chart-note').textContent='Camera travel and pin rings are editorial animation, not flood timing or extent growth.';
+  $('analysis-chart-note').textContent='Water texture, camera travel and pin rings are illustrative motion. Flood footprints stay fixed to their observation date; this does not reconstruct flood growth.';
  }
  function sectionReading(){
   const e=event(),stop=currentStop(),report=activeReport();
@@ -368,6 +372,15 @@ window.floodTimeline=(()=>{
    pins.push(new maplibregl.Marker({element,anchor:'bottom'}).setLngLat(pin.coordinates).addTo(map));
   }
  }
+ function paintExtentWater(){
+  // Visual texture only: polygon boundaries remain fixed to the source observation.
+  const phase=reduced.matches?0:Math.floor(progress*120)%8;
+  for(const id of ['flood-extent-waves-2024','flood-extent-waves-2025']){
+   if(!map.getLayer(id))continue;
+   if(id.endsWith('2025'))map.setFilter(id,['==',['get','observed'],snapshotDate()]);
+   map.setPaintProperty(id,'fill-pattern','flood-wave-'+phase);
+  }
+ }
  function paint(){
   if(!map)return;
   if(active){for(const id of ['network-solid','network-seasonal'])if(map.getLayer(id))map.setPaintProperty(id,'line-opacity',hasGeometry()&&overlayVisible ? .38 : .8);if(map.getLayer('network-glow'))map.setPaintProperty('network-glow','line-opacity',.25);}
@@ -376,7 +389,7 @@ window.floodTimeline=(()=>{
   const date=snapshotDate(),visibility=`${active}/${index}/${overlayVisible}/${showBuildings}`;
   if(visibility!==lastVisibility){
    for(const id of ids)if(map.getLayer(id)){
-    const show=['flood-road-wash','flood-road-flow'].includes(id)?mode()==='reports':id==='flood-reported-sections'?mode()==='reports':id.startsWith('flood-focus-')?['observed2024','detected2025'].includes(mode()):id==='flood-reported-road'?mode()==='reports':id==='flood-buildings'?showBuildings&&hasGeometry():id==='flood-pulse'?hasGeometry():mode()==='observed2024'?['flood-clouds','flood-observed','flood-edge'].includes(id):mode()==='detected2025'?['flood-observed-2025','flood-edge-2025','flood-water-shimmer'].includes(id):mode()==='model'?['flood-hazard','flood-hazard-edge'].includes(id):false;
+    const show=id==='flood-extent-waves-2024'?mode()==='observed2024':id==='flood-extent-waves-2025'?mode()==='detected2025':['flood-road-wash','flood-road-flow'].includes(id)?mode()==='reports':id==='flood-reported-sections'?mode()==='reports':id.startsWith('flood-focus-')?['observed2024','detected2025'].includes(mode()):id==='flood-reported-road'?mode()==='reports':id==='flood-buildings'?showBuildings&&hasGeometry():id==='flood-pulse'?hasGeometry():mode()==='observed2024'?['flood-clouds','flood-observed','flood-edge'].includes(id):mode()==='detected2025'?['flood-observed-2025','flood-edge-2025','flood-water-shimmer'].includes(id):mode()==='model'?['flood-hazard','flood-hazard-edge'].includes(id):false;
     map.setLayoutProperty(id,'visibility',active&&overlayVisible&&show?'visible':'none');
    }lastVisibility=visibility;
   }
@@ -391,6 +404,7 @@ window.floodTimeline=(()=>{
    map.setPaintProperty('flood-road-flow','line-opacity',waterMoving?.9:.55);
    map.setPaintProperty('flood-road-flow','line-gradient',['interpolate',['linear'],['sin',['*',['-',['line-progress'],progress*8],Math.PI*4]],-1,'rgba(75,180,213,.1)',.2,'rgba(75,180,213,.2)',1,'#defbff']);
   }
+  paintExtentWater();
   if(map.getLayer('flood-focus-waves'))map.setPaintProperty('flood-focus-waves','fill-pattern','flood-wave-'+(reduced.matches?0:Math.floor(progress*120)%8));
   $('flood-stage').textContent=event().note;
   $('flood-timeline').value=Math.round(index*100+progress*100);$('flood-timeline').setAttribute('aria-valuetext',`${event().label}, ${Math.round(progress*100)} percent navigation phase`);
