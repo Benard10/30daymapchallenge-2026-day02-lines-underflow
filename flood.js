@@ -193,7 +193,8 @@ window.floodTimeline=(()=>{
  const compact=window.matchMedia('(max-width:900px)');
  let currentPlace='city';
  let currentReportKey='',focusKey='',hazardPeriod=10;
- const stopCache=new Map();
+ const stopCache=new Map(),illustrativeCache=new Map();
+ let illustrativeKey='';
  let followRiver=true,lastTourStop='',showBuildings=true,pins=[],pinKey='',pinPopup=null,lastSnapshot='';
  let analysis=false,observedArea=0,basemapPaint=[],hasLaunched=false;
  let active=false,index=10,playing=false,progress=0,speed=1,raf=0,last=0,lastPaint=0,data={},loadError=false,dataReady=false,overlayVisible=true,lastVisibility='';
@@ -250,6 +251,14 @@ window.floodTimeline=(()=>{
    map.addLayer({id:'flood-hazard-edge',type:'line',source:'flood-hazard',paint:{'line-color':colors,'line-width':.6,'line-opacity':.7}},before);
   }
   if(map.getSource('openmaptiles'))map.addLayer({id:'flood-buildings',type:'fill-extrusion',source:'openmaptiles','source-layer':'building',minzoom:13,paint:{'fill-extrusion-color':'#8aa7a0','fill-extrusion-height':['max',0,['to-number',['get','render_height'],0]],'fill-extrusion-base':['max',0,['to-number',['get','render_min_height'],0]],'fill-extrusion-opacity':.62}},before);
+  map.addSource('illustrative-report-water',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
+  for(const [id,color,width,blur,opacity] of [
+   ['report-water-soft','#2178a2',[18,86,130],25,.26],
+   ['report-water-light','#49b4d9',[10,52,80],15,.16]]){
+   map.addLayer({id,type:'line',source:'illustrative-report-water',layout:{'line-cap':'round','line-join':'round',visibility:'none'},paint:{'line-color':color,'line-width':['interpolate',['linear'],['zoom'],11,width[0],15,width[1],18,width[2]],'line-blur':blur,'line-opacity':opacity}},map.getLayer('flood-buildings')?'flood-buildings':before);
+  }
+  map.addLayer({id:'report-water-ripples',type:'line',source:'illustrative-report-water',layout:{'line-cap':'round','line-join':'round',visibility:'none'},paint:{'line-pattern':'flood-wave-0','line-width':['interpolate',['linear'],['zoom'],11,12,15,58,18,90],'line-opacity':.25,'line-blur':1.8,'line-pattern-transition':{duration:0}}},map.getLayer('flood-buildings')?'flood-buildings':before);
+  illustrativeKey='';illustrativeCache.clear();
   const flowWidth=['interpolate',['linear'],['zoom'],9,.8,12,2.3,15,4,18,6];
   map.addLayer({id:'flood-flow-bed',type:'line',source:'flood-rivers',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#05394d','line-width':['interpolate',['linear'],['zoom'],9,2.8,12,4.3,15,6,18,8],'line-opacity':.72,'line-blur':.7}});
   map.addLayer({id:'flood-pulse',type:'line',source:'flood-rivers',layout:{'line-join':'round'},paint:{'line-pattern':'water-flow-0','line-width':flowWidth,'line-opacity':.95,'line-pattern-transition':{duration:0}}});
@@ -351,7 +360,8 @@ window.floodTimeline=(()=>{
   const key=event().id+'/'+dataReady;if(stopCache.has(key))return stopCache.get(key);
   let stops=reportLocations().map(f=>{
    const roadPoints=(data['flood-reported-roads']?.features||[]).filter(r=>r.properties.report_id===f.properties.id).flatMap(r=>r.geometry.coordinates).filter(p=>Math.hypot(p[0]-f.geometry.coordinates[0],p[1]-f.geometry.coordinates[1])<.008);
-   return {bounds:extentAround([...roadPoints,f.geometry.coordinates],f.properties.kind==='road'?.0025:.004),report:f,pin:{coordinates:f.geometry.coordinates,name:f.properties.name,key:f.properties.id}};
+   const waterContext=illustrativeWater(f).features.flatMap(value=>value.geometry.coordinates.flat());
+   return {bounds:extentAround([...roadPoints,...waterContext,f.geometry.coordinates],f.properties.kind==='road'?.0025:.004),report:f,pin:{coordinates:f.geometry.coordinates,name:f.properties.name,key:f.properties.id}};
   });
   const input=observedData();
   if(['observed2024','radar'].includes(mode())){
@@ -436,6 +446,41 @@ window.floodTimeline=(()=>{
    pins.push(new maplibregl.Marker({element,anchor:'bottom'}).setLngLat(pin.coordinates).addTo(map));
   }
  }
+ function illustrativeWater(report){
+  const empty={type:'FeatureCollection',features:[]};if(!report)return empty;
+  const key=report.properties.id;if(illustrativeCache.has(key))return illustrativeCache.get(key);
+  const [x,y]=report.geometry.coordinates,scaleX=111195*Math.cos(y*Math.PI/180),scaleY=111195;
+  let nearest=Infinity;const paths=[];
+  const west=x-.006,east=x+.006,south=y-.004,north=y+.004;
+  // Keep only real line segments near the report. Stroke widths are visual pixels,
+  // deliberately not a geospatial inundation polygon or a hydraulic buffer.
+  for(const feature of features){
+   if(feature.properties.waterway!=='river'&&feature.properties.category!=='river')continue;
+   for(const path of feature.geometry.coordinates)for(let i=1;i<path.length;i++){
+    const a=path[i-1],b=path[i],ax=(a[0]-x)*scaleX,ay=(a[1]-y)*scaleY,dx=(b[0]-a[0])*scaleX,dy=(b[1]-a[1])*scaleY;
+    const t=Math.max(0,Math.min(1,-(ax*dx+ay*dy)/(dx*dx+dy*dy||1)));
+    nearest=Math.min(nearest,Math.hypot(ax+t*dx,ay+t*dy));
+    let low=0,high=1,keep=true;const vx=b[0]-a[0],vy=b[1]-a[1];
+    for(const [p,q] of [[-vx,a[0]-west],[vx,east-a[0]],[-vy,a[1]-south],[vy,north-a[1]]]){
+     if(p===0){if(q<0){keep=false;break;}}else{const u=q/p;if(p<0)low=Math.max(low,u);else high=Math.min(high,u);if(low>high){keep=false;break;}}
+    }
+    if(keep)paths.push([[a[0]+low*vx,a[1]+low*vy],[a[0]+high*vx,a[1]+high*vy]]);
+   }
+  }
+  if(nearest>650||!paths.length){illustrativeCache.set(key,empty);return empty;}
+  for(const road of data['flood-reported-sections']?.features||[])if(road.properties.report_id===key)paths.push(...road.geometry.coordinates);
+  const result={type:'FeatureCollection',features:[{type:'Feature',properties:{report_id:key,meaning:'Illustrative water effect only; extent not measured'},geometry:{type:'MultiLineString',coordinates:paths}}]};
+  illustrativeCache.set(key,result);return result;
+ }
+ function paintIllustrativeWater(){
+  const report=active&&overlayVisible&&mode()==='reports'?activeReport():null;
+  const value=illustrativeWater(report),visible=value.features.length>0,key=visible?report.properties.id:'none';
+  const source=map.getSource('illustrative-report-water');
+  if(source&&key!==illustrativeKey){source.setData(value);illustrativeKey=key;}
+  for(const id of ['report-water-soft','report-water-light','report-water-ripples'])if(map.getLayer(id))map.setLayoutProperty(id,'visibility',visible?'visible':'none');
+  if(map.getLayer('report-water-ripples'))map.setPaintProperty('report-water-ripples','line-pattern','flood-wave-'+waterPhase());
+  $('illustrative-water-note').hidden=!visible;
+ }
  function paintRoadStress(){
   if(!map.getLayer('flood-road-flow'))return;
   // A travelling highlight on contextual road lines, not a flood-depth scale.
@@ -475,6 +520,7 @@ window.floodTimeline=(()=>{
   const pattern='water-flow-'+waterPhase();
   if(map.getLayer('flood-pulse'))map.setPaintProperty('flood-pulse','line-pattern',pattern);
   paintRoadStress();
+  paintIllustrativeWater();
   paintExtentWater();
   if(map.getLayer('flood-focus-waves'))map.setPaintProperty('flood-focus-waves','fill-pattern','flood-wave-'+waterPhase());
   $('flood-stage').textContent=event().note;

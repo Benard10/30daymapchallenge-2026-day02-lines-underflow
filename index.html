@@ -8,7 +8,7 @@
   <title>Underflow — Nairobi Waterways</title>
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
-  <link rel="stylesheet" href="styles.css?v=20261103-short-story">
+  <link rel="stylesheet" href="styles.css?v=20261103-river-report-water">
 </head>
 <body class="animation-only">
   <header class="app-header">
@@ -44,7 +44,7 @@
       <nav class="presets" aria-label="Map area"><button type="button" data-view="nairobi" class="active" aria-pressed="true">Nairobi</button><button type="button" data-view="centre" aria-pressed="false">City centre</button><button type="button" data-view="west" aria-pressed="false">West Nairobi</button></nav>
       <div id="story-map-caption" class="story-map-caption" hidden></div>
       <button id="analysis-toggle" class="analysis-toggle" type="button" aria-pressed="false" hidden>Analysis view</button>
-      <div id="flood-map-stamp" class="flood-map-stamp" hidden><span id="flood-map-kind"></span><strong id="flood-map-year"></strong><span id="flood-event-date" class="flood-event-date"></span><div class="flood-section-reading"><strong id="flood-section-name"></strong><span id="flood-section-measure"></span></div><span class="overlay-hidden-note">Overlay hidden</span></div>
+      <div id="flood-map-stamp" class="flood-map-stamp" hidden><span id="flood-map-kind"></span><strong id="flood-map-year"></strong><span id="flood-event-date" class="flood-event-date"></span><div class="flood-section-reading"><strong id="flood-section-name"></strong><span id="flood-section-measure"></span></div><span id="illustrative-water-note" class="illustrative-water-note" hidden>Illustrative &mdash; extent not measured</span><span class="overlay-hidden-note">Overlay hidden</span></div>
       <section id="flood-overlay" class="flood-overlay" aria-label="Flood animation controls" hidden>
         <div id="hazard-legend" hidden class="hazard-legend" aria-label="Compare long-term model scenarios"><div class="hazard-choices" role="group" aria-label="Return period and annual exceedance chance"><button type="button" data-hazard-period="10" aria-pressed="true">10-year <small>10% / year</small></button><button type="button" data-hazard-period="50" aria-pressed="false">50-year <small>2% / year</small></button><button type="button" data-hazard-period="100" aria-pressed="false">100-year <small>1% / year</small></button></div><p>Annual chance under model assumptions; not a schedule or a 2026 forecast.</p></div><div class="flood-event-picker"><label class="sr-only" for="flood-event-select">Choose a dated event or model chapter</label><select id="flood-event-select" aria-label="Choose a dated event or model chapter"></select></div><div class="continuous-timeline"><label class="sr-only" for="flood-timeline">Flood timeline, selected events and reveal phase</label><input id="flood-timeline" type="range" min="0" max="1200" step="1" value="1000"><nav id="flood-years" class="flood-years" aria-label="Choose a year to analyse"></nav></div>
         <section class="analysis-chart" aria-label="River analysis chart"><div class="analysis-chart-heading"><span id="analysis-chart-title"></span><output id="analysis-value" class="analysis-motion-label"></output></div><svg id="analysis-plot" viewBox="0 0 1000 115" preserveAspectRatio="none" role="img" aria-label="River analysis chart"></svg></section>
@@ -75,6 +75,6 @@
   </dialog>
   <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
   <script src="app.js?v=20261103-short-story"></script>
-  <script src="flood.js?v=20261103-road-stress"></script>
+  <script src="flood.js?v=20261103-river-report-water"></script>
 </body>
 </html>
