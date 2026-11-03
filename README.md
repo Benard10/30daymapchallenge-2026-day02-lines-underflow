@@ -4,7 +4,7 @@
 
 A map of Nairobi's rivers, streams and drainage lines, connecting the waterway network to stories of flooding and the streets and neighbourhoods affected.
 
-The app opens directly into the flood animation: dated reports, satellite observations and a separate long-term model comparison. The map and playback controls fill the main view.
+The app opens directly into the flood animation: dated reports, satellite observations and a separate long-term model comparison. The map and playback controls fill the main view. **Why this map** opens a brief story about the relationship between waterways, reported road disruption and dated water observations, with a compact guide to the animation.
 
 ## Explore the map
 

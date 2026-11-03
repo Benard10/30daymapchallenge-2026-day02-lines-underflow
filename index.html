@@ -8,13 +8,14 @@
   <title>Underflow — Nairobi Waterways</title>
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
-  <link rel="stylesheet" href="styles.css?v=20261103-road-stress">
+  <link rel="stylesheet" href="styles.css?v=20261103-short-story">
 </head>
 <body class="animation-only">
   <header class="app-header">
     <a class="brand" href="./" aria-label="Underflow home"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 7c15-5 8 12 24 7M4 15c15-5 8 12 24 7M4 23c8-3 10 1 13 3"/></svg><span>Underflow</span></a>
     <span class="tagline">Nairobi flood timeline <span class="header-divider">/</span> <strong>Day 02 &middot; Lines</strong></span>
     <div class="location"><span></span> NAIROBI, KENYA</div>
+    <button id="map-story-button" class="map-story-button" type="button" aria-haspopup="dialog">Why this map</button>
   </header>
   <main class="analysis-view">
     <aside hidden inert class="layers-panel" aria-label="Map layers and network summary">
@@ -58,8 +59,22 @@
   </main>
   <footer><span>Waterways © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap contributors</a> · ODbL</span><span class="snapshot">Source snapshot <time id="snapshot-date">—</time></span><button type="button" id="about-button">About the data <span aria-hidden="true">↗</span></button></footer>
   <dialog id="about"><div class="about-header"><h2>Reading this map</h2><button type="button" id="close-about" aria-label="Close about the data">×</button></div><div class="about-body"><p><strong>Lines reveal a network.</strong> Underflow shows waterways mapped in OpenStreetMap within a rectangular Nairobi study area.</p><p>Deep-blue lines are tagged as rivers, teal as streams, and muted violet as drains, ditches, or canals. Dashed lines have explicit intermittent or seasonal tags. A solid line does not prove year-round flow.</p><p>Each segment is an OpenStreetMap way clipped to the study area. Kilometres are calculated along those mapped lines. Named segments with the same name and type are grouped for browsing; that does not establish a connected hydrological system.</p><p>The Flood timeline separates historical accounts beginning in 1961, reported incidents, dated satellite observations and a long-term model baseline. Blue polygons show the available 1 May 2024 UNOSAT observation or partial GFM detections from 14/26 April 2025 and 12/16 March 2026. Report pins are approximate references with individual dates and sources, not inundation boundaries. March 2026 reports and later radar observations are separate chapters. The Outlook chapter is a dated KMD rain forecast for 3-9 November 2026, without a forecast flood boundary. The separate Model baseline chapter has no event date and is not a 2026 forecast. Missing geometry does not establish dry ground.</p><p>This is not a historical reconstruction, flood-risk assessment, water-quality map, or engineering survey. Missing lines and tags mean missing information, not necessarily missing waterways.</p><p>Data is © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap contributors</a>, available under the <a href="https://opendatacommons.org/licenses/odbl/1-0/" target="_blank" rel="noreferrer">Open Database License</a>. <a href="data/waterways.geojson" download>Download the mapped network</a>.</p></div></dialog>
+  <dialog id="map-story" class="map-story" aria-labelledby="map-story-title">
+    <div class="map-story-heading"><span>DAY 02 · LINES</span><button id="close-map-story" type="button" aria-label="Close the story">&times;</button></div>
+    <h2 id="map-story-title">A city connected by lines.</h2>
+    <p>Waterways carry water through Nairobi. Roads connect people and neighbourhoods. For <strong>Day 2: Lines</strong>, Underflow brings these two networks into one view.</p>
+    <p>Follow the rivers, streams and drains alongside reported flooding at T-Mall, South C, Bellevue and Kangundo Road. These reports show where everyday connections have been disrupted, linking the water network to the places people live and travel through.</p>
+    <div class="story-map-guide" aria-label="Reading the animation">
+      <p><i class="story-flow-mark" aria-hidden="true">→</i><span><strong>Follow the rivers.</strong> Cyan arrows trace the mapped waterway network.</span></p>
+      <p><i class="story-road-mark" aria-hidden="true"></i><span><strong>Find the affected places.</strong> Red pulses highlight reported road locations. Named pins identify roads, neighbourhoods or nearby references.</span></p>
+      <p><i class="story-water-mark" aria-hidden="true"></i><span><strong>Read the evidence.</strong> Blue footprints show dated satellite water detections; the Model chapter is separate.</span></p>
+    </div>
+    <p class="map-story-note">Choose a year, then follow the dates and place names. Motion is illustrative; report pins do not measure flood extent.</p>
+    <button id="map-story-explore" class="map-story-explore" type="button">Explore the timeline &rarr;</button>
+    <span class="map-story-challenge">#30DayMapChallenge 2026</span>
+  </dialog>
   <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
-  <script src="app.js?v=20261103-road-stress"></script>
+  <script src="app.js?v=20261103-short-story"></script>
   <script src="flood.js?v=20261103-road-stress"></script>
 </body>
 </html>

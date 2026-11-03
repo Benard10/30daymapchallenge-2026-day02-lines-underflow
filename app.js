@@ -275,9 +275,12 @@ function wireControls(){
  $('full-view').onclick=toggleFullView;
  document.addEventListener('fullscreenchange',()=>setFullView(document.fullscreenElement===$('map-panel')));
  document.addEventListener('keydown',event=>{
-  if(event.key!=='Escape'||$('about').open)return;
+  if(event.key!=='Escape'||$('about').open||$('map-story').open)return;
   if(!$('detail').hidden)closeDetails(true);else if(!document.fullscreenElement)setFullView(false);
  });
+ $('map-story-button').onclick=()=>{window.floodTimeline?.pause();$('map-story').showModal();};
+ $('close-map-story').onclick=()=>$('map-story').close();
+ $('map-story-explore').onclick=()=>{$('map-story').close();$('flood-play').focus();};
  $('about-button').onclick=()=>$('about').showModal();$('close-about').onclick=()=>$('about').close();
  const compact=window.matchMedia('(max-width: 900px), (max-height: 600px)');
  const adapt=()=>{$('legend').open=!compact.matches;};compact.addEventListener('change',adapt);adapt();
