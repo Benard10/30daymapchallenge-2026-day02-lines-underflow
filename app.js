@@ -52,6 +52,7 @@ function showStory(index,focusHeading=false){
  if(focusHeading)$('story-title').focus({preventScroll:true});
 }
 function setMode(mode,reframe=true,focusHeading=true){
+ mode='flood';
  storyActive=mode==='story';storySelection=[];closeDetails();
  if(mode!=='explore'){Object.keys(layerVisibility).forEach(key=>layerVisibility[key]=true);syncLayerVisibility();}
  map?.getSource('hover-preview')?.setData(emptyCollection());previewKey=null;
@@ -292,8 +293,9 @@ async function init(){
   map.on('style.load',()=>{styleReady=true;installNetwork();installBoundary();});
   map.on('movestart',event=>{if(event.originalEvent)setActiveView(null);});
   map.on('error',()=>{if(!basemapProblem){basemapProblem=true;$('status').textContent='Some map tiles could not load. The bundled waterway network remains available.';}});
-  map.on('click','network-hit',event=>{const key=event.features?.[0]?.properties.group_key;if(key)choose(key);});
+  map.on('click','network-hit',event=>{if(window.floodTimeline?.active)return;const key=event.features?.[0]?.properties.group_key;if(key)choose(key);});
   map.on('mousemove','network-hit',event=>{
+   if(window.floodTimeline?.active)return;
    map.getCanvas().style.cursor='pointer';
    if(window.matchMedia('(pointer:coarse)').matches||selectedKey)return;
    const p=event.features?.[0]?.properties;if(!p)return;previewWaterway(p.group_key);
@@ -320,7 +322,7 @@ async function init(){
   if(sourceMetadata.osm_base_timestamp)$('snapshot-date').dateTime=sourceMetadata.osm_base_timestamp;
   applyFilters();renderComposition();installNetwork();frameView('nairobi',0);
   $('story-mode').disabled=false;$('flood-mode').disabled=false;
-  setMode('story',false,false);
+  setMode('flood',false,false);
  window.floodTimeline?.install();
   if(!basemapProblem)$('status').textContent='';
  }catch(error){$('waterway-list').setAttribute('aria-busy','false');$('status').textContent=error.message.includes('map library')?error.message:'Waterway data could not load. Please refresh and try again.';$('waterway-list').innerHTML='<p class="empty">The waterway directory is unavailable.</p>';}

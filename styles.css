@@ -140,3 +140,8 @@ main.analysis-view>.sidebar,main.analysis-view>.layers-panel{display:none!import
 @supports(padding:max(0px)){.app-header{padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right))}footer{padding-left:max(8px,env(safe-area-inset-left));padding-right:max(8px,env(safe-area-inset-right))}}
 
 @media(max-width:900px){.about-body p{font-size:13px}.flood-report-popup .maplibregl-popup-content{font-size:12px;max-height:min(260px,40dvh)}.flood-report-popup .maplibregl-popup-close-button{min-width:36px;min-height:36px}}
+
+/* Dedicated flood animation: map, dated evidence and playback controls. */
+.animation-only .layers-panel,.animation-only .sidebar,.animation-only #analysis-toggle,.animation-only .map-title,.animation-only .presets,.animation-only #story-map-caption,.animation-only .map-key,.animation-only #detail{display:none!important}
+.animation-only main{display:block;padding:0;min-height:0}
+.animation-only .map-panel{width:100%;height:100%;margin:0;border-radius:0}

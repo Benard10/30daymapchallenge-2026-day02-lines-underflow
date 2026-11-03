@@ -4,13 +4,10 @@
 
 A map of Nairobi's rivers, streams and drainage lines, connecting the waterway network to stories of flooding and the streets and neighbourhoods affected.
 
-Start with **Story**, browse **Explore rivers**, then open **Flooding** for dated reports, satellite observations and a separate long-term model comparison.
+The app opens directly into the flood animation: dated reports, satellite observations and a separate long-term model comparison. The map and playback controls fill the main view.
 
 ## Explore the map
 
-- Browse named waterways and inspect their mapped lengths.
-- Toggle rivers, streams, drains and the faded county boundary from the layers rail.
-- Follow eight story chapters with linked map views.
 - Play or scrub the flood timeline, jump between years, and follow named location pins.
 - Compare three long-term river-flood scenarios in the undated Model chapter.
 - Use full map view on desktop, tablet or phone. Reduced-motion preferences suppress decorative motion.

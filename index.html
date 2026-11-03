@@ -4,20 +4,20 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#f7faf7">
-  <meta name="description" content="Explore Nairobi through its rivers, streams, and urban drainage. An interactive atlas of the city's mapped waterways.">
+  <meta name="description" content="Follow Nairobi flood history through animated river corridors, reported locations, satellite observations and model scenarios.">
   <title>Underflow — Nairobi Waterways</title>
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
-  <link rel="stylesheet" href="styles.css?v=20261103-responsive">
+  <link rel="stylesheet" href="styles.css?v=20261103-animation-only">
 </head>
-<body>
+<body class="animation-only">
   <header class="app-header">
     <a class="brand" href="./" aria-label="Underflow home"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 7c15-5 8 12 24 7M4 15c15-5 8 12 24 7M4 23c8-3 10 1 13 3"/></svg><span>Underflow</span></a>
-    <span class="tagline">Nairobi water atlas <span class="header-divider">/</span> <strong>Day 02 &middot; Lines</strong></span>
+    <span class="tagline">Nairobi flood timeline <span class="header-divider">/</span> <strong>Day 02 &middot; Lines</strong></span>
     <div class="location"><span></span> NAIROBI, KENYA</div>
   </header>
-  <main>
-    <aside class="layers-panel" aria-label="Map layers and network summary">
+  <main class="analysis-view">
+    <aside hidden inert class="layers-panel" aria-label="Map layers and network summary">
       <div class="panel-heading"><button id="layers-toggle" class="panel-icon" type="button" aria-label="Expand map layers" aria-expanded="false" aria-controls="layers-content">&#9776;</button><h2>Map layers</h2><span class="panel-count">04</span></div>
       <div id="layers-content" class="layers-content">
       <button type="button" class="layer-card" data-layer="river" aria-pressed="true" aria-label="Show rivers"><span class="layer-swatch river"></span><div><strong>Rivers</strong><span>Natural waterways</span></div><span id="layer-river-count" class="layer-number">--</span></button>
@@ -28,7 +28,7 @@
       <div class="source-card"><span class="section-kicker">DATA SOURCE</span><strong>OpenStreetMap</strong><span>Community-mapped waterways</span><span class="source-status"><i></i>Local data &middot; 2026 snapshot</span></div>
       <div class="rail-legend"><span class="dashed-mark"></span> Dashed: tagged seasonal / intermittent</div></div>
     </aside>
-    <aside class="sidebar" aria-label="Waterway explorer">
+    <aside hidden inert class="sidebar" aria-label="Waterway explorer">
       <nav class="sidebar-modes" aria-label="Story, rivers and flooding"><button id="story-mode" type="button" aria-pressed="true" disabled>Story</button><button id="explore-mode" type="button" aria-pressed="false">Explore rivers</button><button id="flood-mode" type="button" aria-pressed="false" disabled>Flooding</button></nav>
       <section id="flood-panel" class="flood-panel" aria-label="Flood history, observations and model baseline" hidden><div class="flood-panel-heading"><span class="section-kicker">NAIROBI / FLOOD TIMELINE</span><span id="flood-kind" class="flood-kind"></span><strong id="flood-year" class="flood-year"></strong></div><div id="flood-content" class="flood-content" aria-live="polite"></div><div class="flood-locations"><span>Look closer</span><button type="button" data-flood-place="city">City</button><button type="button" data-flood-place="mathare">Mathare</button><button type="button" data-flood-place="mukuru">Mukuru</button></div></section>
       <section id="story-pane" class="story-pane" aria-labelledby="story-title" hidden><div class="story-progress" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div><div id="story-content" aria-live="polite"></div><nav class="story-navigation" aria-label="Story chapters"><button id="story-back" type="button">← Back</button><span id="story-count"></span><button id="story-next" type="button">Next →</button></nav></section>
@@ -59,7 +59,7 @@
   <footer><span>Waterways © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap contributors</a> · ODbL</span><span class="snapshot">Source snapshot <time id="snapshot-date">—</time></span><button type="button" id="about-button">About the data <span aria-hidden="true">↗</span></button></footer>
   <dialog id="about"><div class="about-header"><h2>Reading this map</h2><button type="button" id="close-about" aria-label="Close about the data">×</button></div><div class="about-body"><p><strong>Lines reveal a network.</strong> Underflow shows waterways mapped in OpenStreetMap within a rectangular Nairobi study area.</p><p>Deep-blue lines are tagged as rivers, teal as streams, and muted violet as drains, ditches, or canals. Dashed lines have explicit intermittent or seasonal tags. A solid line does not prove year-round flow.</p><p>Each segment is an OpenStreetMap way clipped to the study area. Kilometres are calculated along those mapped lines. Named segments with the same name and type are grouped for browsing; that does not establish a connected hydrological system.</p><p>The Flood timeline separates historical accounts beginning in 1961, reported incidents, dated satellite observations and a long-term model baseline. Blue polygons show the available 1 May 2024 UNOSAT observation or partial 14/26 April 2025 GFM detections. Report pins are approximate references with individual dates and sources, not inundation boundaries. March 2026 is reported history. The separate Model baseline chapter has no event date and is not a 2026 forecast. Missing geometry does not establish dry ground.</p><p>This is not a historical reconstruction, flood-risk assessment, water-quality map, or engineering survey. Missing lines and tags mean missing information, not necessarily missing waterways.</p><p>Data is © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap contributors</a>, available under the <a href="https://opendatacommons.org/licenses/odbl/1-0/" target="_blank" rel="noreferrer">Open Database License</a>. <a href="data/waterways.geojson" download>Download the mapped network</a>.</p></div></dialog>
   <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
-  <script src="app.js?v=20261103-responsive"></script>
-  <script src="flood.js?v=20261103-camera-follow"></script>
+  <script src="app.js?v=20261103-animation-only"></script>
+  <script src="flood.js?v=20261103-animation-only"></script>
 </body>
 </html>
